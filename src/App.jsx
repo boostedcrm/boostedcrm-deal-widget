@@ -11,12 +11,8 @@ import {
   ThemeProvider,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import logo from "../src/assets/logo.png";
-import InfoGathering from "./pages/InfoGathering";
-import ContactDetails from "./pages/ContactDetails";
-import ConfirmDeal from "./pages/ConfirmDeal";
+
 import DealWidget from "./pages/DealWidget";
-import DealConverted from "./pages/DealConverted";
 
 import { Snackbar } from "@mui/material";
 
@@ -27,7 +23,7 @@ const theme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         notchedOutline: {
-          borderColor: "white",
+          borderColor: "black",
         },
       },
     },
@@ -88,7 +84,7 @@ function App() {
           RecordID: data?.EntityId,
         });
 
-        console.log({recordData})
+        console.log({ recordData });
         const description = recordData?.data[0]?.Description; // Attempt to get the description
 
         // Set initial parameters
@@ -109,6 +105,11 @@ function App() {
             console.log(uiData);
           }
         );
+
+        // https://www.zohoapis.com/crm/v2/functions/related_project_books/actions/execute?auth_type=oauth
+
+
+
         if (recordData && recordData.data && recordData.data.length > 0) {
           const record = recordData.data[0];
           // Uncomment and adjust the state setters according to your actual state variables
@@ -128,14 +129,14 @@ function App() {
               RecordID: record?.Contact_Name.id,
             });
 
-            console.log("contactResp",contactData)
-  
+            console.log("contactResp", contactData);
+
             setContactFirstName(contactData?.data[0]?.First_Name);
             setContactLastName(contactData?.data[0]?.Last_Name);
           }
         }
 
-        console.log(recordData.data[0]?.Contact_Name)
+        console.log(recordData.data[0]?.Contact_Name);
       } catch (error) {
         console.error("Failed to fetch data", error);
       }
@@ -155,24 +156,35 @@ function App() {
   };
 
   const handleSave = async () => {
-    var config = {
-      Entity: "Deal",
-      APIData: {
-        id: recordId,
-        Contact_Person_LinkedIN: contactPersonLinkedin,
-        Contact_Person_Title: contactPersonTitle,
-        CEO_LinkedIN: ceoLinkedin,
-        Deal_Amount: dealAmount,
-        // Company_Size_and_Revenue: companyRevenue
-      },
-      Trigger: ["workflow"],
+    // https://sandbox.zohoapis.com/crm/v2/functions/related_projects/actions/execute?auth_type=oauth
+    console.log("hit")
+    let func_name = "related_books_invoice";
+    let req_data = {
+      id: recordId,
     };
-    await ZOHO.CRM.API.updateRecord(config).then(function (data) {
-      console.log(data);
-    });
-    ZOHO.CRM.UI.Popup.closeReload().then(function (data) {
-      console.log(data);
-    });
+    await ZOHO.CRM.FUNCTIONS.execute(func_name, req_data).then(
+      async function (result) {
+        console.log(result);
+      }
+    );
+    // var config = {
+    //   Entity: "Deal",
+    //   APIData: {
+    //     id: recordId,
+    //     Contact_Person_LinkedIN: contactPersonLinkedin,
+    //     Contact_Person_Title: contactPersonTitle,
+    //     CEO_LinkedIN: ceoLinkedin,
+    //     Deal_Amount: dealAmount,
+    //     // Company_Size_and_Revenue: companyRevenue
+    //   },
+    //   Trigger: ["workflow"],
+    // };
+    // await ZOHO.CRM.API.updateRecord(config).then(function (data) {
+    //   console.log(data);
+    // });
+    // ZOHO.CRM.UI.Popup.closeReload().then(function (data) {
+    //   console.log(data);
+    // });
   };
 
   const handleStatus = async (stage) => {
@@ -201,7 +213,6 @@ function App() {
       {page === "deal" && (
         <DealWidget
           handleClose={handleClose}
-          handleSave={handleSave}
           dealId={dealId}
           accountName={accountName}
           setAccountName={setAccountName}
@@ -226,6 +237,7 @@ function App() {
           description={description}
           setDescription={setDescription}
           handleStatus={handleStatus}
+          handleSave={handleSave}
         />
       )}
       <Snackbar

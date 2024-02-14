@@ -1,10 +1,19 @@
-import { AppBar, Box, Button, Grid, TextField, Toolbar } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Button,
+  Grid,
+  TextField,
+  Toolbar,
+  Tabs,
+  Tab,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import background from "../assets/background2.png";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet"; // Icon for Finance
 
-import logo from "../assets/logo.png";
+import logo from "../assets/logo_2.png";
 import ProjectTable from "./Projects";
 import InvoiceTable from "./Invoices";
 
@@ -35,35 +44,9 @@ const DealWidget = ({
   setCeoLinkedin,
   description,
   setDescription,
-  handleStatus
+  handleStatus,
+  handleSave,
 }) => {
-  const handleStageButton = async (stage) => {
-    ZOHO.CRM.UI.Popup.closeReload().then(function (data) {
-      console.log(data);
-    });
-    window.location.href =
-      "https://crm.zoho.com/crm/org582234994/tab/Potentials/" + dealId;
-    // var config = {
-    //   Entity: "Deals",
-    //   APIData: {
-    //     id: dealId,
-    //     Stage: stage,
-    //   },
-    //   Trigger: ["workflow"],
-    // };
-
-    // await ZOHO.CRM.API.updateRecord(config)
-    //   .then(function (data) {
-    //     console.log(data);
-    //     // Redirect to Google
-    //     window.location.href = "https://crm.zoho.com/crm/org582234994/tab/Potentials/" + dealId;
-    //   })
-    //   .catch(function (error) {
-    //     console.error("Failed to update record", error);
-    //     // Handle error
-    //   });
-  };
-
   const handleCancel = () => {
     ZOHO.CRM.UI.Popup.closeReload().then(function (data) {
       console.log(data);
@@ -71,68 +54,6 @@ const DealWidget = ({
   };
 
   const [invoices, setInvoices] = useState([]);
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-
-  //       const recordData = await ZOHO.CRM.API.getRecord({
-  //         Entity: "Deals",
-  //         RecordID: dealId,
-  //       });
-
-  //       const description = recordData?.data[0]?.Description; // Attempt to get the description
-
-  //       // Set initial parameters
-  //       const baseHeight = 500;
-  //       const charactersPerLine = 106;
-  //       const heightIncrementPerLine = 20;
-  //       let dynamicHeight = baseHeight; // Default height
-
-  //       // Only calculate dynamic height if description exists
-  //       if (description) {
-  //         const descriptionLength = description.length;
-  //         const numLines = Math.ceil(descriptionLength / charactersPerLine);
-  //         dynamicHeight += numLines * heightIncrementPerLine; // Adjust height based on description length
-  //       }
-
-  //       await ZOHO.CRM.UI.Resize({ height: dynamicHeight, width: "1000" }).then(
-  //         function (uiData) {
-  //           console.log(uiData);
-  //         }
-  //       );
-
-  //       if (recordData.data[0]?.Contact_Name !== null) {
-  //         const contactData = await ZOHO.CRM.API.getRecord({
-  //           Entity: "Contacts",
-  //           RecordID: recordData.data[0]?.Contact_Name.id,
-  //         });
-
-  //         setContactFirstName(contactData?.data[0]?.First_Name);
-  //         setContactLastName(contactData?.data[0]?.Last_Name);
-  //       }
-
-  //       if (recordData && recordData.data && recordData.data.length > 0) {
-  //         const record = recordData.data[0];
-  //         // Uncomment and adjust the state setters according to your actual state variables
-  //         setAccountName(record?.Account_Name.name);
-  //         setDealName(record?.Deal_Name);
-  //         setAmount(record?.Amount);
-  //         setDealStage(record?.Stage);
-  //         setDescription(record?.Description);
-  //         setCeoLinkedin(record?.CEO_LinkedIN);
-  //         setContactPersonTitle(record?.Contact_Person_Title);
-  //         setContactPersonLinkedin(record?.Contact_Person_LinkedIN);
-  //         setCompanyRevenue(record?.Company_Size_and_Revenue);
-  //         console.log(record); // Optional: for debugging
-  //       }
-  //     } catch (error) {
-  //       console.error("Failed to fetch data", error);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
 
   const [activeSection, setActiveSection] = useState("main-deal-section");
 
@@ -146,21 +67,25 @@ const DealWidget = ({
       label: "Account Name",
       value: accountName,
       setter: setAccountName,
+      disabled: true,
     },
     {
       label: "Deal Name",
       value: dealName,
       setter: setDealName,
+      disabled: true,
     },
     {
       label: "Contact First Name",
       value: contactFirstName,
       setter: setContactFirstName,
+      disabled: true,
     },
     {
       label: "Contact Last Name",
       value: contactLastName,
       setter: setContactLastName,
+      disabled: true,
     },
     {
       label: "Amount",
@@ -176,6 +101,7 @@ const DealWidget = ({
       label: "Deal Stage",
       value: dealStage, // Updated from 'description'
       setter: setDealStage, // Updated setter function
+      disabled: true,
     },
     {
       label: "Contact Person Title",
@@ -194,7 +120,7 @@ const DealWidget = ({
     },
   ];
 
-  console.log({fields})
+  console.log({ fields });
 
   return (
     <Box
@@ -202,47 +128,41 @@ const DealWidget = ({
         width: "100%",
         height: "100vh",
         overflowY: "hidden",
-        backgroundColor: "#1e1e1e",
-        backgroundImage: `url(${background})`,
-        // Cover the entire Box
         backgroundSize: "cover",
-        // Prevent the image from repeating
         backgroundRepeat: "no-repeat",
-        // Center the background image
         backgroundPosition: "center",
       }}
     >
-      <AppBar position="static" sx={{ bgcolor: "#191919" }}>
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          {/* <Box></Box> */}
+      <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            bgcolor: "white",
+          }}
+        >
           <img src={logo} alt="Logo" style={{ width: "20%", height: "auto" }} />
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Button
-              variant="contained"
-              startIcon={<AssignmentIcon />}
-              onClick={showProjectsSection}
-              sx={{
-                bgcolor: "rgba(25, 118, 210, 0.8)",
-                "&:hover": { bgcolor: "rgba(25, 118, 210, 1)" },
-              }}
-            >
-              Projects
-            </Button>
-            <Button
-              variant="contained"
-              color="success"
-              startIcon={<AccountBalanceWalletIcon />}
-              onClick={showFinanceSection}
-              sx={{
-                bgcolor: "rgba(0, 128, 0, 0.8)",
-                "&:hover": { bgcolor: "rgba(0, 128, 0, 1)" },
-              }}
-            >
-              Finance
-            </Button>
-          </Box>
-        </Toolbar>
-      </AppBar>
+          <Tabs
+            value={activeSection}
+            onChange={(event, newValue) => setActiveSection(newValue)}
+            centered
+          >
+            <Tab
+              label="Deal Info"
+              value="main-deal-section"
+              onClick={showMainDealSection}
+            />
+            <Tab
+                label="Projects"
+                value="Projects"
+                onClick={showProjectsSection}
+              />
+             <Tab
+                label="Finance"
+                value="Finance"
+                onClick={showFinanceSection}
+              />
+          </Tabs>
+        </Box>
 
       {activeSection === "main-deal-section" && (
         <Box className="main-deal-section">
@@ -270,17 +190,23 @@ const DealWidget = ({
                     fullWidth
                     margin="dense"
                     size="small"
+                    disabled={field.disabled} // Setting disabled based on field.disabled
                     InputLabelProps={{
-                      style: { color: "#ffffff" },
                       shrink: true,
                     }}
                     InputProps={{
-                      style: { color: "#ffffff" },
-                      // Override the default outline
-                      notchedOutline: { borderColor: "#ffffff" },
-                      // Apply styles directly to the input
+                      style: {
+                        backgroundColor: field.disabled
+                          ? "inherit"
+                          : "rgba(46, 125, 50, 0.08)",
+                      },
                       classes: {
-                        notchedOutline: { borderColor: "#ffffff !important" },
+                        notchedOutline: {
+                          borderColor: field.disabled
+                            ? "#000000"
+                            : "rgba(46, 125, 50, 1)",
+                          borderWidth: field.disabled ? 1 : 2,
+                        },
                       },
                     }}
                   />
@@ -294,20 +220,20 @@ const DealWidget = ({
                   onChange={(e) => setDescription(e.target.value)}
                   fullWidth
                   multiline
-                  minrows={4}
                   margin="dense"
                   size="small"
                   InputLabelProps={{
-                    style: { color: "#ffffff" },
                     shrink: true,
                   }}
                   InputProps={{
-                    style: { color: "#ffffff" },
-                    // Override the default outline
-                    notchedOutline: { borderColor: "#ffffff" },
-                    // Apply styles directly to the input
+                    style: {
+                      backgroundColor: "rgba(46, 125, 50, 0.08)",
+                    },
                     classes: {
-                      notchedOutline: { borderColor: "#ffffff !important" },
+                      notchedOutline: {
+                        borderColor: "rgba(46, 125, 50, 1)",
+                        borderWidth: 2,
+                      },
                     },
                   }}
                 />
@@ -328,8 +254,8 @@ const DealWidget = ({
               variant="outlined"
               sx={{
                 width: "130px",
-                bgcolor: "rgba(255, 255, 255,0.6)",
-                color: "white",
+                // bgcolor: "rgba(255, 255, 255,0.6)",
+                // color: "white",
                 borderColor: "none",
               }}
               onClick={handleCancel}
@@ -337,46 +263,43 @@ const DealWidget = ({
               Cancel
             </Button>
             <Button
-              variant="contained"
-              color="success"
+              variant="outlined"
+              color="secondary"
               // onClick={handleConvert}
-              onClick={() => handleStatus("Follow Up")}
               sx={{
                 width: "130px",
-                bgcolor: "rgba(102, 187, 106, 0.6)", // Convert button with RGBA color
-                "&:hover": {
-                  bgcolor: "rgba(102, 187, 106, 0.8)",
-                },
+                // bgcolor: "rgba(255, 255, 255,0.6)",
+                // color: "white",
+                borderColor: "none",
               }}
+              onClick={() => handleStatus("Follow Up")}
             >
               Follow Up
             </Button>
             <Button
-              variant="contained"
-              color="success"
-              // onClick={handleConvert}
-              onClick={() => setPage("deal")}
+              variant="outlined"
+              color="info"
+              onClick={handleSave}
+              // onClick={() => setPage("deal")}
               sx={{
                 width: "130px",
-                bgcolor: "rgba(66, 165, 245, 0.6)", // Nurture button with RGBA color
-                "&:hover": {
-                  bgcolor: "rgba(66, 165, 245, 0.8)",
-                },
+                // bgcolor: "rgba(255, 255, 255,0.6)",
+                // color: "white",
+                borderColor: "none",
               }}
             >
               Save
             </Button>
             <Button
               variant="contained"
-              color="success"
+              color="error"
               // onClick={handleConvert}
               onClick={() => handleStatus("Closed - Lost")}
               sx={{
                 width: "130px",
-                bgcolor: "rgba(239, 83, 80, 0.6)", // Lost button with RGBA color
-                "&:hover": {
-                  bgcolor: "rgba(239, 83, 80, 0.8)",
-                },
+                // bgcolor: "rgba(255, 255, 255,0.6)",
+                // color: "white",
+                borderColor: "none",
               }}
             >
               Lost
@@ -385,14 +308,13 @@ const DealWidget = ({
               variant="contained"
               color="success"
               // onClick={handleConvert}
-              onClick={() => handleStatus("Closed Won - Paid")}
               sx={{
                 width: "130px",
-                bgcolor: "rgba(102, 187, 106, 0.6)", // Convert button with RGBA color
-                "&:hover": {
-                  bgcolor: "rgba(102, 187, 106, 0.8)",
-                },
+                // bgcolor: "rgba(255, 255, 255,0.6)",
+                // color: "white",
+                borderColor: "none",
               }}
+              onClick={() => handleStatus("Closed Won - Paid")}
             >
               Won
             </Button>
