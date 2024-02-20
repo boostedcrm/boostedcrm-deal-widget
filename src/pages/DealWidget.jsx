@@ -73,6 +73,11 @@ const DealWidget = ({
     </Grid>
   );
 
+  const openProject = () => {
+    // Open Google in a new tab
+    window.open("https://projects.zoho.com/portal/boostedcrm#kanbanview/1102347000010628029/customview/1102347000008767003", "_blank");
+  };
+
   return (
     <Box
       style={{
@@ -208,7 +213,7 @@ const DealWidget = ({
                 }}
               >
                 <Typography fontWeight="bold">Finance</Typography>
-                <Button>Project</Button>
+                <Button onClick={openProject}>Project</Button>
               </Box>
               <InvoiceTable data={selectedInvoices} />
             </Box>

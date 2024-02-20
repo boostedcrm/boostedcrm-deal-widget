@@ -73,6 +73,7 @@ function App() {
   const [descriptionHeight, setDescriptionHeight] = useState(0);
 
   const [invoices, setInvoices] = useState([])
+  const [project, setProject] = useState([])
 
   useEffect(() => {
     console.log({ height });
@@ -115,6 +116,17 @@ function App() {
         await ZOHO.CRM.FUNCTIONS.execute(func_name, req_data).then(
           async function (result) {
             setInvoices(result.data)
+          }
+        );
+
+        let function_name = "related_project_books";
+        let request_data = {
+          id: recordId,
+        };
+        await ZOHO.CRM.FUNCTIONS.execute(function_name, request_data).then(
+          async function (result) {
+            console.log({project: result.data})
+            setProject(result.data)
           }
         );
 
