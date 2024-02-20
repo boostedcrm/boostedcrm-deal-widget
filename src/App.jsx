@@ -72,16 +72,18 @@ function App() {
 
   const [descriptionHeight, setDescriptionHeight] = useState(0);
 
+  const [invoices, setInvoices] = useState([])
+
   useEffect(() => {
     console.log({ height });
     ZOHO.embeddedApp.on("PageLoad", async function (data) {
       // console.log(data.EntityId);
 
-      setRecordId(data?.EntityId);
+      setRecordId(data?.EntityId[0]);
       try {
         const recordData = await ZOHO.CRM.API.getRecord({
           Entity: "Deals",
-          RecordID: data?.EntityId,
+          RecordID: data?.EntityId[0],
         });
 
         console.log({ recordData });
@@ -100,9 +102,19 @@ function App() {
           dynamicHeight += numLines * heightIncrementPerLine; // Adjust height based on description length
         }
 
-        await ZOHO.CRM.UI.Resize({ height: dynamicHeight, width: "1000" }).then(
+        await ZOHO.CRM.UI.Resize({ height: "800", width: "1200" }).then(
           function (uiData) {
             console.log(uiData);
+          }
+        );
+
+        let func_name = "related_books_invoice";
+        let req_data = {
+          id: recordId,
+        };
+        await ZOHO.CRM.FUNCTIONS.execute(func_name, req_data).then(
+          async function (result) {
+            setInvoices(result.data)
           }
         );
 
@@ -156,38 +168,28 @@ function App() {
   };
 
   const handleSave = async () => {
-    // https://sandbox.zohoapis.com/crm/v2/functions/related_projects/actions/execute?auth_type=oauth
-    console.log("hit")
-    let func_name = "related_books_invoice";
-    let req_data = {
-      id: recordId,
+    var config = {
+      Entity: "Deals",
+      APIData: {
+        id: recordId,
+        Contact_Person_LinkedIN: contactPersonLinkedin,
+        Contact_Person_Title: contactPersonTitle,
+        CEO_LinkedIN: ceoLinkedin,
+        Amount: amount,
+        Company_Size_and_Revenue: companyRevenue
+      },
+      Trigger: ["workflow"],
     };
-    await ZOHO.CRM.FUNCTIONS.execute(func_name, req_data).then(
-      async function (result) {
-        console.log(result);
-      }
-    );
-    // var config = {
-    //   Entity: "Deal",
-    //   APIData: {
-    //     id: recordId,
-    //     Contact_Person_LinkedIN: contactPersonLinkedin,
-    //     Contact_Person_Title: contactPersonTitle,
-    //     CEO_LinkedIN: ceoLinkedin,
-    //     Deal_Amount: dealAmount,
-    //     // Company_Size_and_Revenue: companyRevenue
-    //   },
-    //   Trigger: ["workflow"],
-    // };
-    // await ZOHO.CRM.API.updateRecord(config).then(function (data) {
-    //   console.log(data);
-    // });
-    // ZOHO.CRM.UI.Popup.closeReload().then(function (data) {
-    //   console.log(data);
-    // });
+    await ZOHO.CRM.API.updateRecord(config).then(function (data) {
+      console.log(data);
+    });
+    ZOHO.CRM.UI.Popup.closeReload().then(function (data) {
+      console.log(data);
+    });
   };
 
   const handleStatus = async (stage) => {
+    console.log({recordId})
     var config = {
       Entity: "Deals",
       APIData: {
@@ -207,6 +209,14 @@ function App() {
   const [loading, setLoading] = useState(false);
 
   const [dealId, setDealId] = useState(null);
+
+  let selectedInvoices;
+
+  if (invoices.length > 0) {
+      selectedInvoices = invoices.slice(0, 5);
+  } else {
+      selectedInvoices = [];
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -238,6 +248,7 @@ function App() {
           setDescription={setDescription}
           handleStatus={handleStatus}
           handleSave={handleSave}
+          selectedInvoices={selectedInvoices}
         />
       )}
       <Snackbar

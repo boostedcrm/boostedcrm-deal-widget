@@ -1,21 +1,7 @@
-import {
-  AppBar,
-  Box,
-  Button,
-  Grid,
-  TextField,
-  Toolbar,
-  Tabs,
-  Tab,
-} from "@mui/material";
-import { useEffect, useState } from "react";
-import background from "../assets/background2.png";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet"; // Icon for Finance
+import { Box, Button, Grid, TextField, Typography } from "@mui/material";
+import { useState } from "react";
 
-import logo from "../assets/logo_2.png";
-import ProjectTable from "./Projects";
-import InvoiceTable from "./Invoices";
+import InvoiceTable from "./InvoiceTable";
 
 const ZOHO = window.ZOHO;
 
@@ -46,6 +32,7 @@ const DealWidget = ({
   setDescription,
   handleStatus,
   handleSave,
+  selectedInvoices,
 }) => {
   const handleCancel = () => {
     ZOHO.CRM.UI.Popup.closeReload().then(function (data) {
@@ -53,74 +40,38 @@ const DealWidget = ({
     });
   };
 
-  const [invoices, setInvoices] = useState([]);
 
   const [activeSection, setActiveSection] = useState("main-deal-section");
 
-  // Event handlers to switch sections
-  const showMainDealSection = () => setActiveSection("main-deal-section");
-  const showProjectsSection = () => setActiveSection("Projects");
-  const showFinanceSection = () => setActiveSection("Finance");
-
-  const fields = [
-    {
-      label: "Account Name",
-      value: accountName,
-      setter: setAccountName,
-      disabled: true,
-    },
-    {
-      label: "Deal Name",
-      value: dealName,
-      setter: setDealName,
-      disabled: true,
-    },
-    {
-      label: "Contact First Name",
-      value: contactFirstName,
-      setter: setContactFirstName,
-      disabled: true,
-    },
-    {
-      label: "Contact Last Name",
-      value: contactLastName,
-      setter: setContactLastName,
-      disabled: true,
-    },
-    {
-      label: "Amount",
-      value: amount,
-      setter: setAmount,
-    },
-    {
-      label: "Company Revenue",
-      value: companyRevenue,
-      setter: setCompanyRevenue,
-    },
-    {
-      label: "Deal Stage",
-      value: dealStage, // Updated from 'description'
-      setter: setDealStage, // Updated setter function
-      disabled: true,
-    },
-    {
-      label: "Contact Person Title",
-      value: contactPersonTitle,
-      setter: setContactPersonTitle,
-    },
-    {
-      label: "Contact Person LinkedIn",
-      value: contactPersonLinkedin,
-      setter: setContactPersonLinkedin,
-    },
-    {
-      label: "CEO LinkedIn",
-      value: ceoLinkedin,
-      setter: setCeoLinkedin,
-    },
-  ];
-
-  console.log({ fields });
+  // Reusable TextField component
+  const CustomTextField = ({ label, value, onChange, disabled, rowCount }) => (
+    <Grid item xs={rowCount}>
+      <TextField
+        label={label}
+        variant="outlined"
+        value={value}
+        onChange={onChange}
+        fullWidth
+        margin="dense"
+        size="small"
+        disabled={disabled}
+        InputLabelProps={{
+          shrink: true,
+        }}
+        InputProps={{
+          style: {
+            backgroundColor: disabled ? "inherit" : "rgba(46, 125, 50, 0.08)",
+          },
+          classes: {
+            notchedOutline: {
+              borderColor: disabled ? "#000000" : "rgba(46, 125, 50, 1)",
+              borderWidth: disabled ? 1 : 2,
+            },
+          },
+        }}
+      />
+    </Grid>
+  );
 
   return (
     <Box
@@ -133,37 +84,6 @@ const DealWidget = ({
         backgroundPosition: "center",
       }}
     >
-      <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            bgcolor: "white",
-          }}
-        >
-          <img src={logo} alt="Logo" style={{ width: "20%", height: "auto" }} />
-          <Tabs
-            value={activeSection}
-            onChange={(event, newValue) => setActiveSection(newValue)}
-            centered
-          >
-            <Tab
-              label="Deal Info"
-              value="main-deal-section"
-              onClick={showMainDealSection}
-            />
-            <Tab
-                label="Projects"
-                value="Projects"
-                onClick={showProjectsSection}
-              />
-             <Tab
-                label="Finance"
-                value="Finance"
-                onClick={showFinanceSection}
-              />
-          </Tabs>
-        </Box>
-
       {activeSection === "main-deal-section" && (
         <Box className="main-deal-section">
           <form
@@ -175,43 +95,82 @@ const DealWidget = ({
             }}
           >
             <Grid container spacing={1}>
-              {fields.map((field, index) => (
-                <Grid
-                  item
-                  xs={6}
-                  key={index}
-                  style={{ display: "flex", alignItems: "center" }}
-                >
-                  <TextField
-                    label={field.label}
-                    variant="outlined"
-                    value={field.value}
-                    onChange={(e) => field.setter(e.target.value)}
-                    fullWidth
-                    margin="dense"
-                    size="small"
-                    disabled={field.disabled} // Setting disabled based on field.disabled
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    InputProps={{
-                      style: {
-                        backgroundColor: field.disabled
-                          ? "inherit"
-                          : "rgba(46, 125, 50, 0.08)",
-                      },
-                      classes: {
-                        notchedOutline: {
-                          borderColor: field.disabled
-                            ? "#000000"
-                            : "rgba(46, 125, 50, 1)",
-                          borderWidth: field.disabled ? 1 : 2,
-                        },
-                      },
-                    }}
-                  />
-                </Grid>
-              ))}
+              {/* Account Name */}
+              <CustomTextField
+                label="Account Name"
+                value={accountName}
+                onChange={(e) => setAccountName(e.target.value)}
+                disabled
+                rowCount={3}
+              />
+              {/* Deal Name */}
+              <CustomTextField
+                label="Deal Name"
+                value={dealName}
+                onChange={(e) => setDealName(e.target.value)}
+                disabled
+                rowCount={3}
+              />
+              {/* Amount */}
+              <CustomTextField
+                label="Amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                rowCount={3}
+              />
+              {/* Company Revenue */}
+              <CustomTextField
+                label="Company Revenue"
+                value={companyRevenue}
+                onChange={(e) => setCompanyRevenue(e.target.value)}
+                rowCount={3}
+              />
+              {/* Deal Stage */}
+              <CustomTextField
+                label="Deal Stage"
+                value={dealStage}
+                onChange={(e) => setDealStage(e.target.value)}
+                disabled
+                rowCount={3}
+              />
+              {/* Contact First Name */}
+              <CustomTextField
+                label="Contact First Name"
+                value={contactFirstName}
+                onChange={(e) => setContactFirstName(e.target.value)}
+                disabled
+                rowCount={3}
+              />
+              {/* Contact Last Name */}
+              <CustomTextField
+                label="Contact Last Name"
+                value={contactLastName}
+                onChange={(e) => setContactLastName(e.target.value)}
+                disabled
+                rowCount={3}
+              />
+              {/* Contact Person Title */}
+              <CustomTextField
+                label="Contact Person Title"
+                value={contactPersonTitle}
+                onChange={(e) => setContactPersonTitle(e.target.value)}
+                rowCount={3}
+                disabled
+              />
+              {/* Contact Person LinkedIn */}
+              <CustomTextField
+                label="Contact Person LinkedIn"
+                value={contactPersonLinkedin}
+                onChange={(e) => setContactPersonLinkedin(e.target.value)}
+                rowCount={6}
+              />
+              {/* CEO LinkedIn */}
+              <CustomTextField
+                label="CEO LinkedIn"
+                value={ceoLinkedin}
+                onChange={(e) => setCeoLinkedin(e.target.value)}
+                rowCount={6}
+              />
               <Grid item xs={12}>
                 <TextField
                   label="Description"
@@ -239,6 +198,20 @@ const DealWidget = ({
                 />
               </Grid>
             </Grid>
+            <Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "7px"
+                }}
+              >
+                <Typography fontWeight="bold">Finance</Typography>
+                <Button>Project</Button>
+              </Box>
+              <InvoiceTable data={selectedInvoices} />
+            </Box>
           </form>
           <Box
             sx={{
@@ -254,8 +227,6 @@ const DealWidget = ({
               variant="outlined"
               sx={{
                 width: "130px",
-                // bgcolor: "rgba(255, 255, 255,0.6)",
-                // color: "white",
                 borderColor: "none",
               }}
               onClick={handleCancel}
@@ -265,11 +236,8 @@ const DealWidget = ({
             <Button
               variant="outlined"
               color="secondary"
-              // onClick={handleConvert}
               sx={{
                 width: "130px",
-                // bgcolor: "rgba(255, 255, 255,0.6)",
-                // color: "white",
                 borderColor: "none",
               }}
               onClick={() => handleStatus("Follow Up")}
@@ -280,11 +248,8 @@ const DealWidget = ({
               variant="outlined"
               color="info"
               onClick={handleSave}
-              // onClick={() => setPage("deal")}
               sx={{
                 width: "130px",
-                // bgcolor: "rgba(255, 255, 255,0.6)",
-                // color: "white",
                 borderColor: "none",
               }}
             >
@@ -293,12 +258,9 @@ const DealWidget = ({
             <Button
               variant="contained"
               color="error"
-              // onClick={handleConvert}
               onClick={() => handleStatus("Closed - Lost")}
               sx={{
                 width: "130px",
-                // bgcolor: "rgba(255, 255, 255,0.6)",
-                // color: "white",
                 borderColor: "none",
               }}
             >
@@ -307,66 +269,13 @@ const DealWidget = ({
             <Button
               variant="contained"
               color="success"
-              // onClick={handleConvert}
               sx={{
                 width: "130px",
-                // bgcolor: "rgba(255, 255, 255,0.6)",
-                // color: "white",
                 borderColor: "none",
               }}
               onClick={() => handleStatus("Closed Won - Paid")}
             >
               Won
-            </Button>
-          </Box>
-        </Box>
-      )}
-      {activeSection === "Projects" && (
-        <Box className="Projects" sx={{ padding: "10px" }}>
-          {/* Content for the Projects section */}
-          <ProjectTable />
-
-          <Box
-            sx={{
-              position: "fixed",
-              bottom: 20,
-              right: 20,
-              display: "flex",
-              gap: 2,
-              justifyContent: "space-between",
-            }}
-          >
-            <Button
-              onClick={showMainDealSection}
-              variant="contained"
-              sx={{ width: "130px" }}
-            >
-              Back
-            </Button>
-          </Box>
-        </Box>
-      )}
-
-      {activeSection === "Finance" && (
-        <Box className="Finance" sx={{ padding: "10px" }}>
-          {/* Content for the Finance section */}
-          <InvoiceTable />
-          <Box
-            sx={{
-              position: "fixed",
-              bottom: 20,
-              right: 20,
-              display: "flex",
-              gap: 2,
-              justifyContent: "space-between",
-            }}
-          >
-            <Button
-              onClick={showMainDealSection}
-              variant="contained"
-              sx={{ width: "130px" }}
-            >
-              Back
             </Button>
           </Box>
         </Box>
