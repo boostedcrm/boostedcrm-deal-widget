@@ -51,6 +51,8 @@ function App() {
   const [contactPersonLinkedin, setContactPersonLinkedin] = useState("");
   const [ceoLinkedin, setCeoLinkedin] = useState("");
   const [description, setDescription] = useState("");
+  const [nextStep, setNextStep] = useState("");
+  const [followup, setFollowUp] = useState(null);
 
   const options = [
     "-None-",
@@ -72,8 +74,8 @@ function App() {
 
   const [descriptionHeight, setDescriptionHeight] = useState(0);
 
-  const [invoices, setInvoices] = useState([])
-  const [project, setProject] = useState([])
+  const [invoices, setInvoices] = useState([]);
+  const [project, setProject] = useState([]);
 
   useEffect(() => {
     console.log({ height });
@@ -115,7 +117,7 @@ function App() {
         };
         await ZOHO.CRM.FUNCTIONS.execute(func_name, req_data).then(
           async function (result) {
-            setInvoices(result.data)
+            setInvoices(result.data);
           }
         );
 
@@ -125,14 +127,12 @@ function App() {
         };
         await ZOHO.CRM.FUNCTIONS.execute(function_name, request_data).then(
           async function (result) {
-            console.log({project: result.data})
-            setProject(result.data)
+            console.log({ project: result.data });
+            setProject(result.data);
           }
         );
 
         // https://www.zohoapis.com/crm/v2/functions/related_project_books/actions/execute?auth_type=oauth
-
-
 
         if (recordData && recordData.data && recordData.data.length > 0) {
           const record = recordData.data[0];
@@ -146,14 +146,18 @@ function App() {
           setContactPersonTitle(record?.Contact_Person_Title);
           setContactPersonLinkedin(record?.Contact_Person_LinkedIN);
           setCompanyRevenue(record?.Company_Size_and_Revenue);
-          console.log(record); // Optional: for debugging
+          setNextStep(record?.Next_Step);
+          const date = new Date(record?.Follow_Up_Date)
+          const formattedDate = dayjs(date);
+          // Set the formatted date using setFollowUp
+          setFollowUp(formattedDate);
           if (record.Contact_Name !== null) {
             const contactData = await ZOHO.CRM.API.getRecord({
               Entity: "Contacts",
               RecordID: record?.Contact_Name.id,
             });
 
-            console.log("contactResp", contactData);
+            console.log("follow u date", record?.Follow_Up_Date);
 
             setContactFirstName(contactData?.data[0]?.First_Name);
             setContactLastName(contactData?.data[0]?.Last_Name);
@@ -188,7 +192,9 @@ function App() {
         Contact_Person_Title: contactPersonTitle,
         CEO_LinkedIN: ceoLinkedin,
         Amount: amount,
-        Company_Size_and_Revenue: companyRevenue
+        Company_Size_and_Revenue: companyRevenue,
+        Follow_Up_Date: followup,
+        Next_Step: nextStep,
       },
       Trigger: ["workflow"],
     };
@@ -201,7 +207,7 @@ function App() {
   };
 
   const handleStatus = async (stage) => {
-    console.log({recordId})
+    console.log({ recordId });
     var config = {
       Entity: "Deals",
       APIData: {
@@ -225,9 +231,9 @@ function App() {
   let selectedInvoices;
 
   if (invoices.length > 0) {
-      selectedInvoices = invoices.slice(0, 5);
+    selectedInvoices = invoices.slice(0, 5);
   } else {
-      selectedInvoices = [];
+    selectedInvoices = [];
   }
 
   return (
@@ -261,6 +267,10 @@ function App() {
           handleStatus={handleStatus}
           handleSave={handleSave}
           selectedInvoices={selectedInvoices}
+          nextStep={nextStep}
+          setNextStep={setNextStep}
+          followup={followup}
+          setFollowUp={setFollowUp}
         />
       )}
       <Snackbar
