@@ -8,11 +8,10 @@ import {
   TableRow,
   Paper,
   Link,
-  TablePagination
+  TablePagination,
 } from "@mui/material";
 
-
-const InvoiceTable = ({data}) => {
+const InvoiceTable = ({ data }) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(3);
 
@@ -31,21 +30,31 @@ const InvoiceTable = ({data}) => {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell sx={{fontWeight: "bold"}}>Invoice #</TableCell>
-              <TableCell sx={{fontWeight: "bold"}}>Status</TableCell>
-              <TableCell sx={{fontWeight: "bold"}}>Amount</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Invoice #</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Amount</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => (
-              <TableRow key={index}>
-                <TableCell>
-                  <Link href="#">{row.Invoiceid}</Link>
+            {data.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  No Data found
                 </TableCell>
-                <TableCell>{row.Status}</TableCell>
-                <TableCell>{row.Amount}</TableCell>
               </TableRow>
-            ))}
+            ) : (
+              data
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Link href={`https://books.zoho.com/app/646495957#/invoices/${row.Invoiceid}`} target="_blank" rel="noopener noreferrer">{row.InvoiceNumber}</Link>
+                    </TableCell>
+                    <TableCell>{row.Status}</TableCell>
+                    <TableCell>{row.Amount}</TableCell>
+                  </TableRow>
+                ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>

@@ -3,6 +3,7 @@ import {
   Button,
   FormControl,
   Grid,
+  Link,
   TextField,
   Typography,
 } from "@mui/material";
@@ -280,7 +281,7 @@ const DealWidget = ({
                 }}
               >
                 <Typography fontWeight="bold">Finance</Typography>
-                <Button>Project</Button>
+                <Link href={`https://projects.zoho.com/portal/boostedcrm#kanbanview/1102347000010628029/customview/1102347000008767003`} target="_blank" rel="noopener noreferrer">Project</Link>
               </Box>
               <InvoiceTable data={selectedInvoices} />
             </Box>

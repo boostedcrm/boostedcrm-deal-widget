@@ -114,22 +114,22 @@ function App() {
 
         let func_name = "related_books_invoice";
         let req_data = {
-          id: recordId,
+          id: data?.EntityId[0],
         };
+        console.log({req_data})
         await ZOHO.CRM.FUNCTIONS.execute(func_name, req_data).then(
           async function (result) {
-            console.log({result})
+            console.log({invoices: result})
             setInvoices(result.data);
           }
         );
 
         let function_name = "related_project_books";
         let request_data = {
-          id: recordId,
+          id: data?.EntityId[0],
         };
         await ZOHO.CRM.FUNCTIONS.execute(function_name, request_data).then(
           async function (result) {
-            console.log({ project: result });
             setProject(result.data);
           }
         );
