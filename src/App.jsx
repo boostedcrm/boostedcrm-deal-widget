@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import DealWidget from "./pages/DealWidget";
 
 import { Snackbar } from "@mui/material";
+import dayjs from "dayjs";
 
 const ZOHO = window.ZOHO;
 
@@ -117,6 +118,7 @@ function App() {
         };
         await ZOHO.CRM.FUNCTIONS.execute(func_name, req_data).then(
           async function (result) {
+            console.log({result})
             setInvoices(result.data);
           }
         );
@@ -127,7 +129,7 @@ function App() {
         };
         await ZOHO.CRM.FUNCTIONS.execute(function_name, request_data).then(
           async function (result) {
-            console.log({ project: result.data });
+            console.log({ project: result });
             setProject(result.data);
           }
         );
@@ -183,6 +185,8 @@ function App() {
     });
   };
 
+  console.log({invoices: invoices, projects: project})
+
   const handleSave = async () => {
     var config = {
       Entity: "Deals",
@@ -230,7 +234,7 @@ function App() {
 
   let selectedInvoices;
 
-  if (invoices.length > 0) {
+  if (invoices !== undefined && invoices.length > 0) {
     selectedInvoices = invoices.slice(0, 5);
   } else {
     selectedInvoices = [];
