@@ -314,7 +314,7 @@ const DealWidget = ({
                 gap: 2,
               }}
             >
-              <Button
+              {/* <Button
                 variant="outlined"
                 color="secondary"
                 sx={{
@@ -324,7 +324,7 @@ const DealWidget = ({
                 onClick={() => handleStatus("Follow Up")}
               >
                 Follow Up
-              </Button>
+              </Button> */}
               <Button
                 variant="outlined"
                 color="info"
